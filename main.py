@@ -1,9 +1,9 @@
 import logging
+import os
+import json
+from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
-import json
-import os
-from datetime import datetime
 
 # Настройка логирования
 logging.basicConfig(
@@ -11,11 +11,10 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-# === КОНФИГУРАЦИЯ ===
+# Конфигурация
 BOT_TOKEN = "8315624829:AAFy9oynE5bC12uX4cDkDdyRRwYVB5Hryn4"
 ADMIN_IDS = [8004182708, 7725062904]
 QUESTIONS_FILE = "questions.json"
-# === КОНЕЦ КОНФИГУРАЦИИ ===
 
 class QuestionBot:
     def __init__(self):
@@ -256,15 +255,11 @@ def main():
     print("=" * 50)
     print("✅ Токен бота: Установлен")
     print(f"✅ Администраторы: {len(ADMIN_IDS)} пользователя")
-    print(f"   - ID: {ADMIN_IDS[0]}")
-    print(f"   - ID: {ADMIN_IDS[1]}")
     print("=" * 50)
     print("Бот запускается...")
     
-    # ИСПРАВЛЕННАЯ ЧАСТЬ - используем Application вместо Updater
     application = Application.builder().token(BOT_TOKEN).build()
     
-    # Добавляем обработчики
     application.add_handler(CommandHandler("start", start_command))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("admin", admin_command))
@@ -272,7 +267,6 @@ def main():
     application.add_handler(CallbackQueryHandler(button_handler))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
-    # Запускаем бота
     application.run_polling()
 
 if __name__ == '__main__':
