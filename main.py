@@ -70,10 +70,10 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     help_text = (
-        "🤖 **Помощь по боту**\n\n"
-        "📝 **Задать вопрос:**\n"
+        "🤖 Помощь по боту\n\n"
+        "📝 Задать вопрос:\n"
         "Используйте кнопку 'Задать вопрос' или просто напишите свой вопрос боту\n\n"
-        "❓ **Частые вопросы:**\n"
+        "❓ Частые вопросы:\n"
         "• Вопросы обрабатываются в порядке очереди\n"
         "• Администраторы ответят вам в личные сообщения\n"
         "• Пожалуйста, формулируйте вопросы четко и вежливо"
@@ -90,14 +90,14 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if data == "ask_question":
         context.user_data['awaiting_question'] = True
         await query.edit_message_text(
-            "📝 **Задайте ваш вопрос:**\n\n"
+            "📝 Задайте ваш вопрос:\n\n"
             "Пожалуйста, опишите вашу проблему или вопрос максимально подробно. "
             "Администратор свяжется с вами в ближайшее время."
         )
     
     elif data == "help":
         await query.edit_message_text(
-            "🤖 **Как пользоваться ботом:**\n\n"
+            "🤖 Как пользоваться ботом:\n\n"
             "1. Нажмите 'Задать вопрос'\n"
             "2. Напишите ваш вопрос\n"
             "3. Ожидайте ответа администратора",
@@ -122,7 +122,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         question_id = data.split("_")[1]
         context.user_data['answering_question'] = question_id
         await query.edit_message_text(
-            f"💬 **Введите ответ на вопрос #{question_id}:**"
+            f"💬 Введите ответ на вопрос #{question_id}:"
         )
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -142,10 +142,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         
         await update.message.reply_text(
-            f"✅ **Вопрос #{question_id} принят!**\n\n"
-            f"Ваш вопрос: _{message_text}_\n\n"
-            "Администраторы уведомлены и ответят вам в ближайшее время.",
-            parse_mode='Markdown'
+            f"✅ Вопрос #{question_id} принят!\n\n"
+            f"Ваш вопрос: {message_text}\n\n"
+            "Администраторы уведомлены и ответят вам в ближайшее время."
         )
         
         await notify_admins(update, context, question_id, user, message_text)
@@ -167,10 +166,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             try:
                 await context.bot.send_message(
                     chat_id=question_data['user_id'],
-                    text=f"💌 **Ответ на ваш вопрос #{question_id}:**\n\n"
+                    text=f"💌 Ответ на ваш вопрос #{question_id}:\n\n"
                          f"{admin_response}\n\n"
-                         f"_Ответ от администратора_",
-                    parse_mode='Markdown'
+                         f"Ответ от администратора"
                 )
                 await update.message.reply_text(f"✅ Ответ отправлен пользователю!")
             except Exception as e:
@@ -191,10 +189,12 @@ async def notify_admins(update: Update, context: ContextTypes.DEFAULT_TYPE, ques
     ]
     
     message_text = (
-        f"🆕 **Новый вопрос #{question_id}**\n\n"
-        f"👤 **Пользователь:** {user.first_name} (@{user.username or 'N/A'})\n"
-        f"🆔 **ID:** {user.id}\n\n"
-        f"📝 **Вопрос:**\n{question_text}"
+        f"🆕 НОВЫЙ ВОПРОС #{question_id}\n\n"
+        f"👤 ПОЛЬЗОВАТЕЛЬ: {user.first_name}\n"
+        f"📱 USERNAME: @{user.username or 'нет'}\n"
+        f"🆔 ID: {user.id}\n\n"
+        f"📝 ВОПРОС:\n{question_text}\n\n"
+        f"⏰ Время: {datetime.now().strftime('%H:%M %d.%m.%Y')}"
     )
     
     for admin_id in ADMIN_IDS:
@@ -202,8 +202,7 @@ async def notify_admins(update: Update, context: ContextTypes.DEFAULT_TYPE, ques
             await context.bot.send_message(
                 chat_id=admin_id,
                 text=message_text,
-                reply_markup=InlineKeyboardMarkup(keyboard),
-                parse_mode='Markdown'
+                reply_markup=InlineKeyboardMarkup(keyboard)
             )
         except Exception as e:
             logging.error(f"Не удалось уведомить администратора {admin_id}: {e}")
@@ -220,13 +219,13 @@ async def admin_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     answered_questions = len([q for q in question_bot.questions.values() if q['status'] == 'answered'])
     
     stats_text = (
-        f"📊 **Панель администратора**\n\n"
+        f"📊 Панель администратора\n\n"
         f"• Всего вопросов: {total_questions}\n"
         f"• Новых: {new_questions}\n"
         f"• Отвеченных: {answered_questions}"
     )
     
-    await update.message.reply_text(stats_text, parse_mode='Markdown')
+    await update.message.reply_text(stats_text)
 
 async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
@@ -240,14 +239,14 @@ async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     answered = len([q for q in question_bot.questions.values() if q['status'] == 'answered'])
     
     stats_text = (
-        f"📈 **Статистика вопросов**\n\n"
+        f"📈 Статистика вопросов\n\n"
         f"• Всего: {total}\n"
         f"• Ожидают ответа: {new}\n"
         f"• Отвечено: {answered}\n"
         f"• Процент ответов: {answered/max(total,1)*100:.1f}%"
     )
     
-    await update.message.reply_text(stats_text, parse_mode='Markdown')
+    await update.message.reply_text(stats_text)
 
 def main():
     print("=" * 50)
